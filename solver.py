@@ -3,6 +3,8 @@ import random
 import copy
 import time
 
+from typing import List
+
 
 class Cell:
 
@@ -11,21 +13,26 @@ class Cell:
     Attributes include value for finalised cells, and a list of candidates for non-finalised cells.
     """
 
-    def __init__(self, value=-1, row=-1, col=-1):
+    def __init__(self, value=-1, row=-1, col=-1) -> None:
         """Cell constructor. Requires a value, row, and column for full functionality."""
         if value == 0:
-            self.candidates = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            self._candidates: List[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
         else:
-            self.candidates = []
-        self.value = value
-        self.row = row
-        self.col = col
+            self._candidates: List[int] = []
+        self.value: int = value
+        self.row: int = row
+        self.col: int = col
 
-    def get_candidates(self):
-        """Returns a copy of the Cell's candidates list."""
-        return self.candidates.copy()
+    @property
+    def candidates(self) -> List[int]:
+        """The possible candidates of the cell."""
+        return self._candidates
 
-    def get_singleton(self):
+    @candidates.setter
+    def candidates(self, candidates_: List[int]) -> None:
+        self._candidates = candidates_
+
+    def get_singleton(self) -> int:
         """If the cell has a single candidate in its candidates list, returns that value, else returns -1 to indicate erroneous call."""
         if len(self.candidates) == 1:
             return self.candidates[0]
@@ -40,7 +47,7 @@ class PartialSudokuState:
     Represents the current state of the problem using a 9x9 grid of Cells.
     """
 
-    def __init__(self, sudoku):
+    def __init__(self, sudoku: np.ndarray) -> None:
         """PartialSudokuState constructor. Takes a 9x9 integer array as input and reads into 9x9 Cell array."""
         self.allocations = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.cells = np.empty([9, 9], dtype=Cell)
