@@ -3,6 +3,7 @@ import random
 import copy
 import time
 
+
 class Cell:
 
     """
@@ -126,7 +127,10 @@ class PartialSudokuState:
                 current = self.cells[i][j]
                 if current.value == 0:
                     for m in range(len(current.candidates)):
-                        if current.candidates[m] not in row_candidates and current.candidates[m] not in duplicates:
+                        if (
+                            current.candidates[m] not in row_candidates
+                            and current.candidates[m] not in duplicates
+                        ):
                             row_candidates.append(current.candidates[m])
                         elif current.candidates[m] not in duplicates:
                             row_candidates.remove(current.candidates[m])
@@ -148,7 +152,10 @@ class PartialSudokuState:
                 current = self.cells[j][i]
                 if current.value == 0:
                     for m in range(len(current.candidates)):
-                        if current.candidates[m] not in col_candidates and current.candidates[m] not in duplicates:
+                        if (
+                            current.candidates[m] not in col_candidates
+                            and current.candidates[m] not in duplicates
+                        ):
                             col_candidates.append(current.candidates[m])
                         elif current.candidates[m] not in duplicates:
                             col_candidates.remove(current.candidates[m])
@@ -172,7 +179,10 @@ class PartialSudokuState:
                         current = self.cells[k][l]
                         if current.value == 0:
                             for m in range(len(current.candidates)):
-                                if current.candidates[m] not in box_candidates and current.candidates[m] not in duplicates:
+                                if (
+                                    current.candidates[m] not in box_candidates
+                                    and current.candidates[m] not in duplicates
+                                ):
                                     box_candidates.append(current.candidates[m])
                                 elif current.candidates[m] not in duplicates:
                                     box_candidates.remove(current.candidates[m])
@@ -192,7 +202,6 @@ class PartialSudokuState:
         self.propagate_col(cell)
         self.propagate_box(cell)
 
-
     def propagate_row(self, cell):
         """Propagates changes to the candidates array of Cells affected by insertion of a final value in the finalised cell's row."""
         for i in range(9):
@@ -207,7 +216,6 @@ class PartialSudokuState:
             if current.value == 0 and cell.value in current.candidates:
                 current.candidates.remove(cell.value)
 
-
     def propagate_box(self, cell):
         """Propagates changes to the candidates array of Cells affected by insertion of a final value in the finalised cell's box."""
         box_row_start = 0
@@ -217,7 +225,7 @@ class PartialSudokuState:
             box_row_start += 3
         if cell.row > 5:
             box_row_start += 3
-        
+
         if cell.col > 2:
             box_col_start += 3
         if cell.col > 5:
@@ -238,14 +246,13 @@ class PartialSudokuState:
                     if len(cell.candidates) == 1:
                         self.set_value_in_state(cell, cell.get_singleton())
 
-
     def singleton_sweep(self):
         """Sweeps to find any Cells with only one candidate and fills these values as final."""
         for i in range(len(self.cells)):
             for cell in self.cells[i]:
                 if len(cell.candidates) == 1:
                     self.set_value_in_state(cell, cell.get_singleton())
-    
+
     def update_candidates(self, cell):
         """Sweeps to find any Cells with impossible candidates and eliminates these candidates from the Cell's candidates array."""
         self.update_row(cell)
@@ -261,7 +268,7 @@ class PartialSudokuState:
             box_row_start += 3
         if cell.row > 5:
             box_row_start += 3
-        
+
         if cell.col > 2:
             box_col_start += 3
         if cell.col > 5:
@@ -299,6 +306,7 @@ class PartialSudokuState:
                 a[i][j] = cell.value
         return a
 
+
 def depth_first_search(state):
     """Runs a depth first search on the problem, returning a solution state if one is found."""
     cell = next_cell(state)
@@ -314,13 +322,14 @@ def depth_first_search(state):
                 return deep_state
     return None
 
+
 def next_cell(state):
     """Selects the next cell by returning the cell with the fewest candidates in its candidate array. Failing this, returns a random choice."""
     min_cell = Cell(value=0)
     cell_choices = []
     for i in range(len(state.cells)):
         for cell in state.cells[i]:
-            if cell.value == 0: 
+            if cell.value == 0:
                 cell_choices.append(cell)
     chosen = False
     for cell in cell_choices:
@@ -332,11 +341,13 @@ def next_cell(state):
         return random.choice(cell_choices)
     return min_cell
 
+
 def order_values(cell, state):
     """Sorts values according to the number of allocations in the state and returns an array."""
     values = cell.get_candidates()
     allocations = state.get_allocations()
     return [value for allocation, value in sorted(zip(allocations, values))]
+
 
 def sudoku_solver(sudoku):
     """Returns a solution, if one exists by minimising problem and performing a depth first search. If no solution exists returns 9x9 array of -1."""
@@ -356,27 +367,27 @@ def sudoku_solver(sudoku):
     return solution.to_array()
 
 
-difficulties = ['very_easy', 'easy', 'medium', 'hard']
+difficulties = ["very_easy", "easy", "medium", "hard"]
 
 for difficulty in difficulties:
     print(f"Testing {difficulty} sudokus")
-    
+
     sudokus = np.load(f"data/{difficulty}_puzzle.npy")
     solutions = np.load(f"data/{difficulty}_solution.npy")
-    
+
     count = 0
     for i in range(len(sudokus)):
         sudoku = sudokus[i].copy()
         print(f"This is {difficulty} sudoku number", i + 1)
         print(sudoku)
-        
+
         start_time = time.process_time()
         your_solution = sudoku_solver(sudoku)
         end_time = time.process_time()
-        
+
         print(f"This is the algorithm's solution for {difficulty} sudoku number", i + 1)
         print(your_solution)
-        
+
         print("Is this solution correct?")
         if np.array_equal(your_solution, solutions[i]):
             print("Yes! Correct solution.")
@@ -384,8 +395,8 @@ for difficulty in difficulties:
         else:
             print("No, the correct solution is:")
             print(solutions[i])
-        
-        print("This sudoku took", end_time-start_time, "seconds to solve.\n")
+
+        print("This sudoku took", end_time - start_time, "seconds to solve.\n")
 
     print(f"{count}/{len(sudokus)} {difficulty} sudokus correct")
     if count < len(sudokus):
