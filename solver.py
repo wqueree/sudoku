@@ -26,7 +26,7 @@ class Cell:
     @property
     def candidates(self) -> List[int]:
         """The possible candidates of the cell."""
-        return self._candidates.copy()
+        return self._candidates
 
     @candidates.setter
     def candidates(self, candidates_: List[int]) -> None:
