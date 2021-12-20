@@ -13,7 +13,7 @@ class Cell:
     Attributes include value for finalised cells, and a list of candidates for non-finalised cells.
     """
 
-    def __init__(self, value=-1, row=-1, col=-1) -> None:
+    def __init__(self, value: int = -1, row: int = -1, col: int = -1) -> None:
         """Cell constructor. Requires a value, row, and column for full functionality."""
         if value == 0:
             self._candidates: List[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -26,7 +26,7 @@ class Cell:
     @property
     def candidates(self) -> List[int]:
         """The possible candidates of the cell."""
-        return self._candidates
+        return self._candidates.copy()
 
     @candidates.setter
     def candidates(self, candidates_: List[int]) -> None:
@@ -49,23 +49,23 @@ class PartialSudokuState:
 
     def __init__(self, sudoku: np.ndarray) -> None:
         """PartialSudokuState constructor. Takes a 9x9 integer array as input and reads into 9x9 Cell array."""
-        self.allocations = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        self.cells = np.empty([9, 9], dtype=Cell)
+        self.allocations: List[int] = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.cells: np.ndarray = np.empty([9, 9], dtype=Cell)
         for i in range(len(sudoku)):
             for j, cell in enumerate(sudoku[i]):
                 if cell > 0:
                     self.allocations[cell - 1] += 1
                 self.cells[i][j] = Cell(value=cell, row=i, col=j)
 
-    def is_goal(self):
+    def is_goal(self) -> bool:
         """Returns True if all Cells have a value other than 0."""
         return all(all(value != 0 for value in row) for row in self.to_array())
 
-    def is_valid(self):
+    def is_valid(self) -> bool:
         """Returns the logical conjunction of the valid_rows_and_cols() adn valid_boxes() methods."""
         return self.valid_rows_and_cols() and self.valid_boxes()
 
-    def valid_rows_and_cols(self):
+    def valid_rows_and_cols(self) -> bool:
         """Iterates over each row and column, returning True if all contain exclusively different values greater than 0."""
         row_valid = True
         col_valid = True
@@ -89,7 +89,7 @@ class PartialSudokuState:
 
         return row_valid and col_valid
 
-    def valid_boxes(self):
+    def valid_boxes(self) -> bool:
         """Iterates over each 3x3 box, returning True if all contain exclusively different values greater than 0."""
         valid = True
         for i in range(0, 9, 3):
@@ -104,14 +104,14 @@ class PartialSudokuState:
                             appeared.add(current)
         return valid
 
-    def set_value(self, cell, new_value):
+    def set_value(self, cell: Cell, new_value: int) -> "PartialSudokuState":
         """Creates a copy of the current state and applies change specified by parameters cell and new_value. This is then simplified and returned."""
         state = copy.deepcopy(self)
         state.set_value_in_state(cell, new_value)
         state.sole_appearance_sweep()
         return state
 
-    def set_value_in_state(self, cell, new_value):
+    def set_value_in_state(self, cell: Cell, new_value: int) -> None:
         """Sets value specified by parameters in the current state. Should be called when values are being set as a direct result of another insertion."""
         new_cell = Cell(value=new_value, row=cell.row, col=cell.col)
         self.cells[cell.row][cell.col] = new_cell
@@ -119,13 +119,13 @@ class PartialSudokuState:
         self.propagate(new_cell)
         self.singleton_sweep()
 
-    def sole_appearance_sweep(self):
+    def sole_appearance_sweep(self) -> None:
         """Sweeps to find all cells where a given cell is the only one that contains a particular value in its row, column, and box. Fills these values."""
         self.sole_appearance_sweep_row()
         self.sole_appearance_sweep_col()
         self.sole_appearance_sweep_box()
 
-    def sole_appearance_sweep_row(self):
+    def sole_appearance_sweep_row(self) -> None:
         """Sweeps to find all cells where a given cell is the only one that contains a particular value in its row. Fills these values."""
         for i in range(9):
             row_candidates = []
@@ -150,7 +150,7 @@ class PartialSudokuState:
                         self.set_value_in_state(current, row_candidates[k])
                         self.sole_appearance_sweep()
 
-    def sole_appearance_sweep_col(self):
+    def sole_appearance_sweep_col(self) -> None:
         """Sweeps to find all cells where a given cell is the only one that contains a particular value in its column. Fills these values."""
         for i in range(9):
             col_candidates = []
@@ -175,7 +175,7 @@ class PartialSudokuState:
                         self.set_value_in_state(current, col_candidates[k])
                         self.sole_appearance_sweep()
 
-    def sole_appearance_sweep_box(self):
+    def sole_appearance_sweep_box(self) -> None:
         """Sweeps to find all cells where a given cell is the only one that contains a particular value in its box. Fills these values."""
         for i in range(0, 9, 3):
             for j in range(0, 9, 3):
@@ -203,27 +203,27 @@ class PartialSudokuState:
                                 self.set_value_in_state(current, box_candidates[m])
                                 self.sole_appearance_sweep()
 
-    def propagate(self, cell):
+    def propagate(self, cell: Cell) -> None:
         """Propagates changes to the candidates array of Cells affected by insertion of a final value in the finalised cell's row, box, and column."""
         self.propagate_row(cell)
         self.propagate_col(cell)
         self.propagate_box(cell)
 
-    def propagate_row(self, cell):
+    def propagate_row(self, cell: Cell) -> None:
         """Propagates changes to the candidates array of Cells affected by insertion of a final value in the finalised cell's row."""
         for i in range(9):
             current = self.cells[cell.row][i]
             if current.value == 0 and cell.value in current.candidates:
                 current.candidates.remove(cell.value)
 
-    def propagate_col(self, cell):
+    def propagate_col(self, cell: Cell) -> None:
         """Propagates changes to the candidates array of Cells affected by insertion of a final value in the finalised cell's column."""
         for i in range(9):
             current = self.cells[i][cell.col]
             if current.value == 0 and cell.value in current.candidates:
                 current.candidates.remove(cell.value)
 
-    def propagate_box(self, cell):
+    def propagate_box(self, cell: Cell) -> None:
         """Propagates changes to the candidates array of Cells affected by insertion of a final value in the finalised cell's box."""
         box_row_start = 0
         box_col_start = 0
@@ -244,7 +244,7 @@ class PartialSudokuState:
                 if current.value == 0 and cell.value in current.candidates:
                     current.candidates.remove(cell.value)
 
-    def minimise(self):
+    def minimise(self) -> None:
         """Minimises problem in the initial state by eliminating impossible values from each Cell's candidates array."""
         for i in range(len(self.cells)):
             for cell in self.cells[i]:
@@ -253,20 +253,20 @@ class PartialSudokuState:
                     if len(cell.candidates) == 1:
                         self.set_value_in_state(cell, cell.get_singleton())
 
-    def singleton_sweep(self):
+    def singleton_sweep(self) -> None:
         """Sweeps to find any Cells with only one candidate and fills these values as final."""
         for i in range(len(self.cells)):
             for cell in self.cells[i]:
                 if len(cell.candidates) == 1:
                     self.set_value_in_state(cell, cell.get_singleton())
 
-    def update_candidates(self, cell):
+    def update_candidates(self, cell: Cell) -> None:
         """Sweeps to find any Cells with impossible candidates and eliminates these candidates from the Cell's candidates array."""
         self.update_row(cell)
         self.update_box(cell)
         self.update_col(cell)
 
-    def update_box(self, cell):
+    def update_box(self, cell: Cell) -> None:
         """Sweeps to find any Cells with impossible candidates resulting from the Cell's box and eliminates these candidates from the Cell's candidates array."""
         box_row_start = 0
         box_col_start = 0
@@ -287,14 +287,14 @@ class PartialSudokuState:
                 if current in cell.candidates:
                     cell.candidates.remove(current)
 
-    def update_row(self, cell):
+    def update_row(self, cell: Cell) -> None:
         """Sweeps to find any Cells with impossible candidates resulting from the Cell's row and eliminates these candidates from the Cell's candidates array."""
         for i in range(9):
             current = self.cells[cell.row][i].value
             if current in cell.candidates:
                 cell.candidates.remove(current)
 
-    def update_col(self, cell):
+    def update_col(self, cell: Cell) -> None:
         """Sweeps to find any Cells with impossible candidates resulting from the Cell's column and eliminates these candidates from the Cell's candidates array."""
         for i in range(9):
             current = self.cells[i][cell.col].value
@@ -351,7 +351,7 @@ def next_cell(state):
 
 def order_values(cell, state):
     """Sorts values according to the number of allocations in the state and returns an array."""
-    values = cell.get_candidates()
+    values = cell.candidates
     allocations = state.get_allocations()
     return [value for allocation, value in sorted(zip(allocations, values))]
 
