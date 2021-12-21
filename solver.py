@@ -19,9 +19,16 @@ class Cell:
             self._candidates: List[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
         else:
             self._candidates: List[int] = []
-        self.value: int = value
-        self.row: int = row
-        self.col: int = col
+        self._value: int = value
+        self._row: int = row
+        self._col: int = col
+
+    def get_singleton(self) -> int:
+        """If the cell has a single candidate in its candidates list, returns that value, else returns -1 to indicate erroneous call."""
+        if len(self.candidates) == 1:
+            return self.candidates[0]
+        else:
+            return -1
 
     @property
     def candidates(self) -> List[int]:
@@ -32,12 +39,32 @@ class Cell:
     def candidates(self, candidates_: List[int]) -> None:
         self._candidates = candidates_
 
-    def get_singleton(self) -> int:
-        """If the cell has a single candidate in its candidates list, returns that value, else returns -1 to indicate erroneous call."""
-        if len(self.candidates) == 1:
-            return self.candidates[0]
-        else:
-            return -1
+    @property
+    def value(self) -> int:
+        """The value of the cell."""
+        return self._value
+
+    @value.setter
+    def value(self, value_: int) -> None:
+        self._value = value_
+
+    @property
+    def row(self) -> int:
+        """The row of the cell."""
+        return self._row
+
+    @row.setter
+    def row(self, row_: int) -> None:
+        self._row = row_
+
+    @property
+    def vol(self) -> int:
+        """The col of the cell."""
+        return self._col
+
+    @col.setter
+    def col(self, col_: int) -> None:
+        self._col = col_
 
 
 class PartialSudokuState:
