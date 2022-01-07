@@ -448,8 +448,8 @@ difficulties = ["very_easy", "easy", "medium", "hard"]
 for difficulty in difficulties:
     print(f"Testing {difficulty} sudokus")
 
-    sudokus = np.load(f"data/{difficulty}_puzzle.npy")
-    solutions = np.load(f"data/{difficulty}_solution.npy")
+    sudokus = np.load(f"../data/{difficulty}_puzzle.npy")
+    solutions = np.load(f"../data/{difficulty}_solution.npy")
 
     count = 0
     for i in range(len(sudokus)):
