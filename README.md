@@ -21,7 +21,7 @@ In addition to optimising the problem itself and the cell/value selection, there
 - `row`: The row of the cell.
 - `col`: The column of the cell.
 
-##### 2.1.1.2 - Attributes
+##### 2.1.1.2 - Methods
 - `get_candidates(self)`: Returns a copy of the `candidates` list.
 - `get_singleton(self)`: If the cell has a single candidate in its candidates list, returns that value, else returns -1 to indicate erroneous call.
 
@@ -64,9 +64,9 @@ In addition to optimising the problem itself and the cell/value selection, there
 
 ## 3 - Evaluation
 
-The solution implemented works well, delivering a solution to almost all problems in approximately 0.1 seconds or less (on a University of Bath Library PC). The algorithm, however, is not particularly efficient; reaching $O(n^5)$ complexity in some places.
+The solution implemented works well, delivering a solution to almost all problems in approximately 0.1 seconds or less (on a University of Bath Library PC).
 
-Fortunately, there are alternatives to applying a depth first search for solving sudoku. Donald E. Knuth (2000) suggested the use of the Dancing Links algorithm to solve a similar constraint satisfaction problem: n queens. Knuth suggests the use of a 0-1 exact cover matrix which could be extended to encompass the problem of sudoku. This is something I would look to use in extending or redeveloping my solution.
+There are however, more efficient alternatives alternatives to applying a depth first search for solving sudoku. Donald E. Knuth (2000) suggested the use of the Dancing Links algorithm to solve a similar constraint satisfaction problem: n queens. Knuth suggests the use of a 0-1 exact cover matrix which could be extended to encompass the problem of sudoku. This is something I would look to use in extending or redeveloping my solution.
 
 
 
